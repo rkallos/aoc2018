@@ -11,6 +11,10 @@ primitive Upper
   fun apply(c: U8): U8 =>
     if (c >= 'a') and (c <= 'z') then c - 0x20 else c end
 
+primitive CICmp
+  fun apply(c1: U8, c2: U8): U8 =>
+    (c1.i16() - c2.i16()).abs().u8()
+
 class DayFour is AOCApp
 
   fun part1(file_lines: Array[String] val): (String | AOCAppError) =>
@@ -47,7 +51,7 @@ class DayFour is AOCApp
       var idx: ISize = 0
       done = true
       for pair in pairs do
-        if (Upper(pair._1) == Upper(pair._2)) and (pair._1 != pair._2) then
+        if CICmp(pair._1, pair._2) == 0x20 then
           polymer.delete(idx, 2)
           done = false
           idx = idx + 1
@@ -60,9 +64,13 @@ class DayFour is AOCApp
   fun remove_unit(c: U8, polymer: String ref): None =>
     let target: U8 = Upper(c)
     var idx: ISize = 0
+    var diff: I16 = 0
     try
       repeat
-        while (Upper(polymer(idx.usize())?) == target) do
+        while
+          (CICmp(polymer(idx.usize())?, target) == 0) or
+          (CICmp(polymer(idx.usize())?, target) == 0x20)
+        do
           polymer.delete(idx)
         end
         idx = idx + 1
